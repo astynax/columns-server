@@ -1,0 +1,8 @@
+dist*
+*.hi
+*.o
+.hsenv*
+.stack-work/
+.DS_Store
+*.swp
+.dir-locals.el
