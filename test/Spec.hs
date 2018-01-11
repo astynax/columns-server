@@ -7,7 +7,7 @@ import           Test.Hspec.Wai.JSON
 import           Network.HTTP.Types.Header
 import           Data.Aeson (Value(..), object, (.=))
 
-import           Server (app)
+import           Columns.Server (app)
 
 main :: IO ()
 main = hspec spec
