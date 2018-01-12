@@ -16,7 +16,7 @@ app' :: IORef Game -> S.ScottyM ()
 app' ref = do
   S.get "/" $ do
     game <- liftIO $ readIORef ref
-    S.html $ renderGame $ Game First "43..\n21..\n..ab\n..cd"
+    S.html $ renderGame game
 
   S.get "/click/:x/:y" $ do
     mx <- fromText <$> S.param "x"
@@ -37,7 +37,7 @@ app' ref = do
 
 app :: IO Application
 app = do
-  ref <- newIORef newGame
+  ref <- newIORef $ Game First "43..\n21..\n..ab\n..cd"
   S.scottyApp $ app' ref
 
 runApp :: IO ()
