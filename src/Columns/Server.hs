@@ -1,40 +1,44 @@
-module Columns.Server (runApp, app, printGame) where
+module Columns.Server ( runApp ) where
 
-import           Network.Wai (Application)
-import           Network.Wai.Cli
-import qualified Web.Scotty as S
+import           Control.Monad.Trans (liftIO)
+import           Data.IORef          (IORef, readIORef, modifyIORef', newIORef)
+import           Data.Text.Lazy      (Text)
+import qualified Data.Text.Lazy      as T
+import qualified Network.HTTP.Types  as HTTP
+import           Network.Wai         (Application)
+import           Network.Wai.Cli     (defWaiMain)
+import qualified Web.Scotty          as S
 
+import           Columns.Render      (css, renderGame)
 import           Columns.Types
 
-app' :: S.ScottyM ()
-app' = do
+app' :: IORef Game -> S.ScottyM ()
+app' ref = do
   S.get "/" $ do
-    S.text "hello"
+    game <- liftIO $ readIORef ref
+    S.html $ renderGame $ Game First "43..\n21..\n..ab\n..cd"
 
-  S.get "/some-json" $ do
-    S.text "nope"
+  S.get "/click/:x/:y" $ do
+    mx <- fromText <$> S.param "x"
+    my <- fromText <$> S.param "y"
+    case (mx, my) of
+      (Just x, Just y) -> do
+        liftIO $ modifyIORef' ref $ \game ->
+          game{board = update2d x y (const $ Just (First, D1))
+              $ board game}
+        S.redirect "/"
+      _ -> do
+        S.status HTTP.badRequest400
+        S.text "Bad request!"
+
+  S.get "/styles.css" $ do
+    S.addHeader "Content-Type" "text/css"
+    S.text css
 
 app :: IO Application
-app = S.scottyApp app'
+app = do
+  ref <- newIORef newGame
+  S.scottyApp $ app' ref
 
 runApp :: IO ()
 runApp = defWaiMain =<< app
-
-printGame :: Game -> IO ()
-printGame (Game _ b) =
-  mapM_ printRow b
-  where
-    printRow r = mapM_ printCell r >> putStrLn ""
-    printCell Nothing = putStr " . "
-    printCell (Just (p, d)) = do
-      case p of
-        First -> putChar '<'
-        Second -> putChar '['
-      case d of
-        D1 -> putChar '1'
-        D2 -> putChar '2'
-        D3 -> putChar '3'
-        D4 -> putChar '4'
-      case p of
-        First -> putChar '>'
-        Second -> putChar ']'

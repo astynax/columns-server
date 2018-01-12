@@ -16,11 +16,20 @@ cabal-version:       >=1.10
 library
   hs-source-dirs:      src
   exposed-modules:     Columns
+                     , Columns.Render
+                     , Columns.Render.Styles
                      , Columns.Server
+                     , Columns.TUI
                      , Columns.Types
-  build-depends:       base >= 4.7 && < 5
-                     , aeson
+                     , Columns.Types.N4
+  build-depends:       aeson
+                     , base >= 4.7 && < 5
+                     , blaze-html
+                     , clay
+                     , http-types
+                     , mtl
                      , scotty
+                     , text
                      , wai
                      , wai-cli
   default-extensions:  OverloadedStrings

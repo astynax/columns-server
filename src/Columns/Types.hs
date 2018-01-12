@@ -3,10 +3,22 @@
 {-# LANGUAGE DeriveTraversable #-}
 {-# LANGUAGE DeriveFunctor #-}
 
-module Columns.Types where
+module Columns.Types
+  ( Game(..)
+  , Player(..)
+  , Board, Cell
+  , Array4(..)
+  , Array2d
+  , X, Y, Piece
+  , newGame
+  , update2d
+  , module Columns.Types.N4
+  ) where
 
 import Data.Function
 import Data.String
+
+import Columns.Types.N4
 
 data Game = Game
   { currentPlayer :: Player
@@ -26,13 +38,6 @@ data X
 data Y
 data Piece
 
-data N4 tag
-  = D1
-  | D2
-  | D3
-  | D4
-  deriving (Show, Eq, Ord)
-
 data Array4 tag a =
   Array4 a a a a
   deriving (Show, Functor, Traversable, Foldable)
@@ -48,12 +53,12 @@ newGame = Game First b
     s = Just (Second, D1)
     b = empty
       & update2d D1 D1 (const f)
-      & update2d D1 D2 (const f)
-      & update2d D1 D3 (const f)
-      & update2d D1 D4 (const f)
-      & update2d D4 D1 (const s)
-      & update2d D4 D2 (const s)
-      & update2d D4 D3 (const s)
+      & update2d D2 D1 (const f)
+      & update2d D3 D1 (const f)
+      & update2d D4 D1 (const f)
+      & update2d D1 D4 (const s)
+      & update2d D2 D4 (const s)
+      & update2d D3 D4 (const s)
       & update2d D4 D4 (const s)
 
 getA4 :: N4 t -> Array4 t a -> a
