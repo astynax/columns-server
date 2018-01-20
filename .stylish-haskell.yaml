@@ -1,0 +1,7 @@
+# stylish-haskell configuration file
+steps:
+  - simple_align:
+      cases: false
+  - imports:
+      list_padding: 2
+      separate_lists: false

@@ -1,8 +1,10 @@
+-- | Stuff to play with game logic from GHCi
+
 module Columns.TUI where
 
-import Data.Foldable
+import           Data.Foldable
 
-import Columns.Types
+import           Columns.Game.Types
 
 printGame :: Game -> IO ()
 printGame (Game _ b) = do
@@ -26,7 +28,7 @@ printGame (Game _ b) = do
         (False, D1) -> c:" "
         (True,  D3) -> c:" "
         (True,  D4) -> c:c:""
-        _  | x      -> "  "
+        _ | x       -> "  "
         _           -> c:c:""
       putChar '|'
       where

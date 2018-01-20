@@ -1,29 +1,24 @@
-module Columns.Server ( runApp ) where
+-- | Game server
+
+module Columns.Server
+  ( runApp
+  ) where
 
 import           Control.Monad.Reader
 import           Control.Monad.Trans             (liftIO)
-import           Data.IORef                      (IORef, modifyIORef', newIORef,
+import           Data.IORef                      (modifyIORef', newIORef,
                                                   readIORef)
-import           Data.Text.Lazy                  (Text)
-import qualified Data.Text.Lazy                  as T
-import qualified Network.HTTP.Types              as HTTP
 import           Network.Wai                     (Application)
 import           Network.Wai.Cli                 (defWaiMain)
 import           Network.Wai.Middleware.HttpAuth
-import           Web.Scotty.Trans                (ActionT, ScottyT)
 import qualified Web.Scotty.Trans                as S
 
+import           Columns.Game
 import           Columns.Render                  (css, renderGame)
 import           Columns.Server.Auth
-import           Columns.Types
+import           Columns.Server.Types
 
-newtype Env = Env
-  { getEnv :: IORef Game
-  }
-
-type ScottyMonad = ScottyT Text (ReaderT Env IO)
-
-scottyApp :: ScottyMonad ()
+scottyApp :: ServerM ()
 scottyApp = do
   S.get "/" $ do
     ref <- getRef
@@ -31,18 +26,13 @@ scottyApp = do
     S.html $ renderGame game
 
   S.get "/click/:x/:y" $ do
-    mx <- fromText <$> S.param "x"
-    my <- fromText <$> S.param "y"
-    case (mx, my) of
-      (Just x, Just y) -> do
-        ref <- getRef
-        liftIO $ modifyIORef' ref $ \game ->
-          game{board = update2d x y (const $ Just (First, D1))
-              $ board game}
-        S.redirect "/"
-      _ -> do
-        S.status HTTP.badRequest400
-        S.text "Bad request!"
+    x <- S.param "x"
+    y <- S.param "y"
+    ref <- getRef
+    liftIO $ modifyIORef' ref $ \game ->
+      game{board = update2d x y (const $ Just (First, D1))
+          $ board game}
+    S.redirect "/"
 
   S.get "/styles.css" $ do
     S.addHeader "Content-Type" "text/css"

@@ -1,7 +1,7 @@
 module Columns
-  ( module Columns.Types
+  ( module Columns.Game
   , module Columns.Server
   ) where
 
-import Columns.Types
+import Columns.Game
 import Columns.Server

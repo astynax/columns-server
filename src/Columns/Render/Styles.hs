@@ -8,7 +8,7 @@ styles = do
     borderSpacing nil
     borderCollapse separate
 
-    "td" ? do
+    "td" ?
       padding nil nil nil nil
 
   ".board-cell" & do

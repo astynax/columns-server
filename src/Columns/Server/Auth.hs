@@ -4,7 +4,6 @@ module Columns.Server.Auth
   ) where
 
 import           Control.Exception     (finally)
-import           Control.Monad         (void)
 import           Control.Monad.Trans   (liftIO)
 import qualified Crypto.BCrypt         as BC
 import           Data.ByteString       (ByteString)
@@ -40,11 +39,10 @@ registerUser user pass = withConn "columns" $ do
     liftIO $ BC.hashPasswordUsingPolicy BC.fastBcryptHashingPolicy pass
   case mbHashBS of
     Nothing     -> pure False
-    Just hashBS -> do
-      insert "users"
+    Just hashBS ->
+      True <$ insert "users"
         [ "name" =: userText
         , "pass" =: (T.pack . BS.unpack $ hashBS) ]
-      pure True
 
 withConn :: Database -> Action IO b -> IO b
 withConn dbName action = do
